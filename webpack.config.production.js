@@ -78,7 +78,7 @@ module.exports = (env, options) =>
         plugins: [
             new CleanWebpackPlugin(),
             new CopyPlugin(copyPluginPatterns),
-            new MiniCssExtractPlugin({ filename: scssConfig.destFileName }),
+            new MiniCssExtractPlugin({ filename: "css/[name].[contenthash].min.css" }),
             new HtmlWebpackPlugin({
                 template: "./src/index.html",
                 inject: true,
