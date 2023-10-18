@@ -7,7 +7,7 @@ Lists of all tasks, uncompleted and completed tasks (separately)</p><br>
 <h3>To start the project:</h3><br>
 1. Clone the project<br>
 2. Run `npm install`<br>
-3. Run `npm i && npm run start`<br>
+3. Run `npm run start`<br>
 <h3>#Build and infrastructure:</h3><br>
 - Webpack 5 + HMR<br>
 - TypeScript + React 18<br>
