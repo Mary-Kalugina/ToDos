@@ -1,0 +1,139 @@
+<ws:template name="bodyContent">
+    <Controls.scroll:Container class="tw-h-full">
+        <Controls.validate:Controller name="formController">
+            <ws:content>
+                <div class="controls-padding_bottom-s">
+                    <div class="controls-padding_top-s controls-padding_left-m controls-padding_right-m controls-padding_bottom-xs">
+                        <IntegrationButtons.Integrations.Templates.Name
+                                name="validateName"
+                                bind:readOnly="options.readOnly"
+                                bind:value="_record.name"
+                                on:nameChanged="_setName()"/>
+                        <div class="controls-margin_top-l">
+                            <IntegrationButtons.Integrations.Templates.CopyConnectionID
+                                    label="UUID"
+                                    colorStyle="{{_colorStyle}}"
+                                    readOnly="{{false}}"
+                                    connectionId="{{_options.parentConnection.id}}"/>
+                        </div>
+
+                    </div>
+                </div>
+            </ws:content>
+        </Controls.validate:Controller>
+        <div>
+            <IntegrationButtons.Integrations.Templates.SectionTitle
+                    classWidth="integration-API_Settings__width_value"
+                    title="{[Алгоритм]}"
+                    bind:expanded="_algorithmExpanded">
+                <ws:leftHeaderContentTemplate>
+                    <ws:if data="{{_options.parentConnection.new}}">
+                        <Controls.buttons:Button
+                                viewMode="link"
+                                caption="{[Выберите алгоритм]}"
+                                on:click="_trySaveIntegration()"/>
+                    </ws:if>
+                    <ws:else>
+                        <IntegrationButtons.Connectors.Templates.IniLookupSelector
+                                name="blocklySelector"
+                                source="{{_sourceAlgorithm}}"
+                                userActions="{{_userActions}}"
+                                connection="{{_connectionBlockly}}"
+                                createIniCallback="{{_onCreateIniCallback}}"
+                                removeIniCallback="{{_onRemoveIniCallback}}"
+                                bind:selectedAlgorithms="_record.selectedAlgorithms"
+                                on:selectedAlgorithmsChanged="_onSelectedAlgorithm()"/>
+                    </ws:else>
+                </ws:leftHeaderContentTemplate>
+                <ws:rightHeaderContentTemplate>
+                    <ws:if data="{{_idAlgorithm}}">
+                        <Controls.buttons:Button
+                                viewMode="link"
+                                icon="icon-FolderClosed"
+                                tooltip="{[Запустить сейчас]}"
+                                readOnly="{{false}}"
+                                attr:class="controls-padding_right-2xs"
+                                on:click="_runAlgorithm()"/>
+                        <Controls.buttons:Button
+                                viewMode="link"
+                                icon="icon-Edit"
+                                tooltip="{[Редактировать алгоритм]}"
+                                iconSize="s"
+                                on:click="_editAlgorithm()"/>
+                    </ws:if>
+                </ws:rightHeaderContentTemplate>
+                <ws:content>
+                    <ws:if data="{{_idAlgorithm && _algorithmExpanded && _svgPreviewer}}">
+                        <ws:partial
+                                template="optional!Integration2/Blockly/BlocklySvgPreviewer"
+                                svg="{{_svgPreviewer}}"
+                        />
+                    </ws:if>
+                </ws:content>
+            </IntegrationButtons.Integrations.Templates.SectionTitle>
+            <ws:if data="{{_idAlgorithm}}">
+                <IntegrationButtons.Integrations.Templates.SectionTitle
+                        title="{[Параметры]}"
+                        bind:expanded="_paramsExpanded">
+                    <ws:content>
+                        <div class="controls-padding_right-3xl controls-margin_right-3xl">
+                            <Controls.propertyGrid:PropertyGrid
+                                    bind:editingObject="_record.valueParams"
+                                    typeDescription="{{_typeDescription}}">
+                                <ws:captionColumnOptions width="162px"/>
+                                <ws:itemsContainerPadding left="null" right="xl" top="null" bottom="null"/>
+                            </Controls.propertyGrid:PropertyGrid>
+                        </div>
+                    </ws:content>
+                </IntegrationButtons.Integrations.Templates.SectionTitle>
+            </ws:if>
+            <ws:if data="{{_idAlgorithm}}">
+                <IntegrationButtons.Integrations.Templates.SectionTitle
+                        title="{[Автоматический запуск]}"
+                        bind:expanded="_automaticStartExpanded">
+                    <ws:leftHeaderContentTemplate>
+                        <Controls.toggle:Switch
+                                viewMode="filled"
+                                bind:value="_record.automaticStartIsOn"
+                                on:valueChanged="_valueChanged()"/>
+                    </ws:leftHeaderContentTemplate>
+                    <ws:rightHeaderContentTemplate>
+                        <ws:if data="{{_record.automaticStartIsOn && _nextRun}}">
+                            <div class="ws-flexbox ws-align-items-center">
+                                <Controls.input:Label
+                                        class="controls-margin_right-2xs"
+                                        caption="{[Следующий]}"/>
+                                <div>{{_nextRun}}</div>
+                            </div>
+                        </ws:if>
+                    </ws:rightHeaderContentTemplate>
+                    <ws:content>
+                        <ws:if data="{{_automaticStartExpanded && _record.automaticStartIsOn || _automaticStartIsCheck && _record.automaticStartIsOn}}">
+                            <IntegrationButtons.Integrations.Templates.Schedule
+                                    name="periodicity"
+                                    readOnly="{{!_record.automaticStartIsOn || _options.readOnly}}"
+                                    bind:value="_record.periodicity"
+                            />
+                        </ws:if>
+                    </ws:content>
+                </IntegrationButtons.Integrations.Templates.SectionTitle>
+            </ws:if>
+            <ws:if data="{{_lastRun}}">
+                <IntegrationButtons.Connectors.Templates.SyncReportDisplay
+                        statusMsg="{{_statusMsg}}"
+                        lastRun="{{_lastRun}}"
+                        dataRun="{{_dataRun}}"/>
+            </ws:if>
+        </div>
+    </Controls.scroll:Container>
+</ws:template>
+
+<Controls.form:Controller
+        attr:class="tw-h-full"
+        name="formController"
+        record="{{ _record }}"
+        initializingWay="local"
+        confirmationShowingCallback="{{ _confirmationShowingCallback }}"
+        on:confirmationDialogResult="_onConfirmationDialogResult()">
+    <ws:partial template="bodyContent"/>
+</Controls.form:Controller>

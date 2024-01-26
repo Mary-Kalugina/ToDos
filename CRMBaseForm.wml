@@ -1,0 +1,93 @@
+<div>
+    <Controls.LoadingIndicator
+            attr:class="tw-h-full"
+            name="loadingIndicator"
+            delay="100">
+        <ws:if data="{{_parentConnection.new}}">
+            <Controls.Container.Async templateName="{{ _templateWizard }}">
+                <ws:partial
+                        name="wizard"
+                        template="{{ content.resolvedTemplate }}"
+                        connection="{{ _connection }}"
+                        parentConnection="{{ _parentConnection }}"
+                        form="{{ this }}"
+                        countStep="{{ 2 }}"
+                        stepIndexName="{{ 0 }}"
+                        wizardFolder="IntegrationButtons/Connectors/ComConnector/Wizard"
+                        needSelectSystem="{{ true }}"
+                        on:setName="_setName()"
+                        on:saveCard="saveCard()"/>
+            </Controls.Container.Async>
+        </ws:if>
+        <ws:else>
+            <Controls.LoadingIndicator
+                    attr:class="tw-h-full"
+                    name="localIndicator"
+                    overlay="dark"
+                    delay="0"
+                    message="{{_options.indicatorMessage}}">
+                <Controls.switchableArea:View
+                        name="tabs"
+                        keyProperty="key"
+                        attr:class="integration-Connectors__BaseForm tw-h-full"
+                        bind:selectedKey="_selectedTabCard"
+                        itemTemplateProperty="itemTemplate">
+                    <ws:items>
+                        <ws:Array>
+                            <ws:Object key="settings">
+                                <ws:itemTemplate>
+                                    <div class="tw-h-full">
+                                        <ws:partial
+                                                on:setName="setName()"
+                                                on:settingChanged="_settingChanged()"
+                                                on:checkConnection="checkConnection()"
+                                                name="settings"
+                                                readOnly="{{ _readOnly }}"
+                                                connection="{{ _connection }}"
+                                                parentConnection="{{ _parentConnection }}"
+                                                form="{{ this }}"
+                                                template="{{ _templateSetting }}"
+                                        />
+                                    </div>
+                                </ws:itemTemplate>
+                            </ws:Object>
+                            <ws:Object key="synch_objects">
+                                <ws:itemTemplate>
+                                    <div class="tw-h-full">
+                                        <ws:if data="{{ !_parentConnection.new }}">
+                                            <Controls.Container.Async templateName="IntegrationButtons/Integrations/AccountingSystems/ObjectSync/ListTypes">
+                                                <ws:partial
+                                                        template="{{ content.resolvedTemplate }}"
+                                                        connection="{{ _parentConnection }}"
+                                                        readOnly="{{false}}"
+                                                        bind:needActivatePanel="_expandedOperationsPanel"
+                                                        on:panelClose="_expandedChangedHandler(null, false)"
+                                                />
+                                            </Controls.Container.Async>
+                                        </ws:if>
+                                    </div>
+                                </ws:itemTemplate>
+                            </ws:Object>
+                            <ws:Object key="exchange_history">
+                                <ws:itemTemplate>
+                                    <div class="tw-h-full controls-padding_top-s">
+                                        <ws:if data="{{ !_parentConnection.new }}">
+                                            <Controls.Container.Async templateName="IntegrationHistory/actionHistory:List">
+                                                <ws:partial
+                                                        hasChanged="{{ _flagUpdateHistory }}"
+                                                        template="{{ content.resolvedTemplate }}"
+                                                        connection="{{ _parentConnection }}"
+                                                />
+                                            </Controls.Container.Async>
+                                        </ws:if>
+                                    </div>
+                                </ws:itemTemplate>
+                            </ws:Object>
+                        </ws:Array>
+                    </ws:items>
+                </Controls.switchableArea:View>
+            </Controls.LoadingIndicator>
+        </ws:else>
+    </Controls.LoadingIndicator>
+    <Controls.popup:Confirmation name="confirmation"/>
+</div>

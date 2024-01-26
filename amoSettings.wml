@@ -1,0 +1,76 @@
+<div class="ws-flex-column ws-flexbox ws-justify-content-between tw-h-full">
+    <div>
+        <div class="controls-padding_top-m controls-padding_right-m integration-AccountingSystems_Form__outerPadding">
+            <Controls.validate:Controller name="validateController">
+                <ws:content>
+                    <IntegrationButtons.Integrations.Templates.Name
+                            name="validateName"
+                            bind:readOnly="_readOnly"
+                            bind:value="_name"
+                            on:nameChanged="_setName()"/>
+                </ws:content>
+            </Controls.validate:Controller>
+            <div class="controls-padding_top-s">
+                <ws:if data="{{ _additionalSettings }}">
+                    <Controls.Container.Async templateName="{{ _additionalSettings }}">
+                        <ws:partial
+                                name="settings"
+                                template="{{ content.resolvedTemplate }}"
+                                parentConnection="{{ _parentConnection }}"
+                                connection="{{ _connection }}"/>
+                    </Controls.Container.Async>
+                </ws:if>
+            </div>
+        </div>
+        <div class="controls-padding-m">
+            <Controls.LoadingIndicator name="loadingIndicator" delay="{{ 100 }}">
+                <div class="ws-flexbox ws-justify-content-between">
+                    <div class="ws-ellipsis">
+                        <Controls.input:Label caption="{[ Пользователь ]}" required="{{false}}"/>
+                        {{_userName}}
+                    </div>
+                    <!-- Копирование идентификатора подключения -->
+                    <ws:partial
+                            template="IntegrationButtons/Integrations/Templates/CopyConnectionID"
+                            connectionId="{{_connection.id}}"/>
+                </div>
+                <!-- Кнопка "Проверить соединение" -->
+                <ws:partial template="IntegrationButtons/Integrations/Templates/CheckConnection"
+                            attr:class="controls-margin_top-m"
+                            bind:status="_statusConnection"
+                            connection="{{ _connection }}"
+                            password="{{ _password }}"
+                            login="{{ _login }}"/>
+                <div class="ws-flexbox ws-flex-column">
+                    <Controls.checkbox:Checkbox
+                            caption="{[Автоматическая синхронизация]}"
+                            attr:class="controls-margin_top-xl"
+                            bind:value="_isAutoSync"
+                            on:valueChanged="_changeIsAutoSync()"/>
+                    <ws:if data="{{ _isAutoSync && !_options.readOnly}}">
+                        <IntegrationButtons.Integrations.Templates.Schedule
+                                name="periodicity"
+                                readOnly="{{ !_isAutoSync }}"
+                                bind:value="_connection.data.connectionParam"/>
+                    </ws:if>
+                </div>
+                <Controls.buttons:Button
+                        viewMode="outlined"
+                        name="startSyncNow"
+                        caption="{[Синхронизировать сейчас]}"
+                        contrastBackground="{{ false }}"
+                        buttonStyle="unaccented"
+                        attr:data-qa="sync_now"
+                        attr:class="controls-margin_top-xl"
+                        on:click="_startSyncNow()"/>
+            </Controls.LoadingIndicator>
+            <Controls.popup:Confirmation name="confirmation"/>
+        </div>
+    </div>
+    <ws:partial
+            template="IntegrationButtons/Connectors/Templates/HintTemplate"
+            url="https://sbis.ru/help/com/crm/integration#import/"
+            systemName="{{_systemName}}"
+            image="Common.sales_funnel.svg"
+    />
+</div>
